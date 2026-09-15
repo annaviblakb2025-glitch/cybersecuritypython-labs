@@ -47,7 +47,7 @@ def create_user(username: str, password: str) -> tuple:
     return username, hash_value
 
 
-data = Path("labs/lab01/data")
+data = Path("data")
 users_file = data / "users.csv"
 
 
@@ -169,6 +169,9 @@ def main():
 
     users_db = read_users()
     print_users(users_db)
+
+    for username, password in users_to_register:
+        login(username, password)
 
 
 if __name__ == "__main__":
