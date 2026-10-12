@@ -1,12 +1,14 @@
-from shared.student import VARIANT_NUMBER
-from hashlib import blake2s
 import csv
+import json
+from datetime import datetime, timezone
+from functools import wraps
+from hashlib import blake2s
 from pathlib import Path
+
 from rich.console import Console
 from rich.table import Table
-import json
-from datetime import datetime
-from functools import wraps
+
+from shared.student import VARIANT_NUMBER
 
 console = Console()
 
@@ -15,12 +17,15 @@ class ValidationError(Exception):
     pass
 
 
+min_length_pwd = 9
+
+
 def generate_hash(password: str, salt: str = "00000") -> str:
     if password == "" or password is None:
         raise ValueError("Пароль не може бути порожнім!")
     if salt == "" or salt is None:
         raise ValueError("Сіль не може бути порожньою!")
-    if len(password) < 9:
+    if len(password) < min_length_pwd:
         raise ValidationError("Пароль має містити не менше 9 символів!")
     password_with_salt = password + salt
     password_hash = blake2s(password_with_salt.encode())
@@ -67,7 +72,7 @@ def create_users(userlist: list) -> list:
         print("Файл не знайдено!")
     except PermissionError:
         print("Немає дозволу на роботу з файлами!")
-    except IOError as error:
+    except OSError as error:
         print(f"Помилка роботи з файлом {error}")
     except ValueError as error:
         print(f"Помилка значення:{error}")
@@ -90,7 +95,7 @@ def read_users() -> list:
         print("Файл не знайдено!")
     except PermissionError:
         print("Немає дозволу на читання файлу!")
-    except IOError as error:
+    except OSError as error:
         print(f"Помилка роботи з файлом {error}")
 
     return users_db
@@ -125,7 +130,7 @@ def log_event(function):
                 "event": "login",
                 "user": username,
                 "result": result,
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
                 "args": [],
                 "kwargs": {},
             }
@@ -138,16 +143,40 @@ def log_event(function):
                 logs.append(event)
                 with open(log_file, "w", newline="", encoding="utf-8") as logfile:
                     json.dump(logs, logfile, ensure_ascii=False, indent=4)
+                table = Table(title="Спроби входу")
+                table.add_column("Користувач")
+                table.add_column("Результат входу")
+                table.add_column("Час входу")
+
+                table.add_row(event["user"], event["result"], event["timestamp"])
+                console.print(table)
+
             except FileNotFoundError:
                 print("Файл логів не знайдено!")
             except PermissionError:
                 print("Немає дозволу на запис логів!")
-            except IOError as error:
+            except OSError as error:
                 print(f"Помилка запису логів: {error}")
             except ValueError as error:
                 print(f"Помилка JSON: {error}")
 
     return wrapper
+
+
+def read_logs() -> list:
+    logs = []
+    try:
+        with open(log_file, "r", newline="", encoding="utf-8") as jsonfile:
+            return json.load(jsonfile)
+
+    except FileNotFoundError:
+        print("Файл не знайдено!")
+    except PermissionError:
+        print("Немає дозволу на читання файлу!")
+    except OSError as error:
+        print(f"Помилка роботи з файлом {error}")
+
+    return logs
 
 
 @log_event

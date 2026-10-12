@@ -1,0 +1,21 @@
+{
+    "total_passwords": 44,
+    "weak_passwords": 10,
+    "weak_percent": 22.73,
+    "average_length": 9.98,
+    "top_masks": {
+        "Complex (Upper-Lower-Digit-Special)": 16,
+        "All-Lowercase": 10,
+        "Lowercase-Digit-Special": 4,
+        "All-Digits": 3,
+        "Lowercase-Digit": 2
+    },
+    "mask_examples": {
+        "Complex (Upper-Lower-Digit-Special)": "Password1!",
+        "All-Lowercase": "password",
+        "Lowercase-Digit-Special": "short1!",
+        "All-Digits": "123456",
+        "Lowercase-Digit": "abc123"
+    },
+    "min_length": 8
+}
