@@ -1,15 +1,17 @@
+import sys
+from datetime import timedelta
+
+from labs.lab02 import task2
 from labs.lab02.task1 import (
     SESSION_TIMEOUT_SEC,
     Admin,
     User,
     UserAccount,
 )
-from labs.lab02 import  task2
-import sys
-from datetime import timedelta
 
-IP = '192.168.0.26'
-PASSWORD = 'smi1_Lee!'
+IP = "192.168.0.26"
+PASSWORD = "smi1_Lee!"
+
 
 def section(title: str) -> None:
     print(f"\n=== {title} ===")
@@ -33,11 +35,19 @@ def demo() -> None:
             print(f"ВІДХИЛЕНО : {new_email} ({error})")
 
     section("Права адміністратора")
-    admin = Admin("senior_pomidor_admin", "senior_pomidor_admin@example.com", "rO!b0t!a", ["read_logs"])
+    admin = Admin(
+        "senior_pomidor_admin",
+        "senior_pomidor_admin@example.com",
+        "rO!b0t!a",
+        ["read_logs"],
+    )
     admin.grant_permission("manage_users")
     print(admin)
     admin.revoke_permission("manage_users")
-    print("Дозвіл 'manage_users' після скасування (revoke):", admin.has_permission("manage_users"))
+    print(
+        "Дозвіл 'manage_users' після скасування (revoke):",
+        admin.has_permission("manage_users"),
+    )
 
     section("Завершення сеансу за таймаутом")
     account["session"].last_activity -= timedelta(seconds=SESSION_TIMEOUT_SEC + 1)
